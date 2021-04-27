@@ -1,0 +1,25 @@
+﻿  Main.cpp
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(111,23): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(173,8): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(174,8): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(286,37): warning C4244: '=': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(287,37): warning C4244: '=': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(288,51): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\MCG_GFX_Framework\Main.cpp(289,51): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  MCG_GFX_Framework.vcxproj -> C:\Users\mattw\Documents\Uni\Mathmatics for Computer Graphics\Ray Tracer\Debug\MCG_GFX_Framework.exe
