@@ -122,7 +122,9 @@ bool check_inside_sphere(Sphere sphere, glm::vec3 queryPoint)
 // Checks if the given point is ahead of the given ray
 bool check_ahead_ray(Ray ray, glm::vec3 queryPoint)
 {
-	if (glm::normalize(ray.GetDirection()) == glm::normalize(queryPoint - ray.GetOrigin()))
+	float margin = glm::length(glm::normalize(ray.GetDirection()) - glm::normalize(queryPoint - ray.GetOrigin()));
+
+	if (margin < 0.001)
 	{
 		return true;
 	};
@@ -170,7 +172,7 @@ HitData get_ray_sphere_intersection(Ray ray, Sphere sphere)
 	};
 
 	glm::vec3 closestPoint = get_closest_point_on_line(ray, sphereCentre);
-	int d = glm::length(sphereCentre - closestPoint);
+	float d = glm::length(sphereCentre - closestPoint);
 	int x = sqrt(pow(sphereRadius, 2) - pow(d, 2));
 
 	// Checks if the closest point is ahead of the ray, if it's not, no intersection
@@ -186,6 +188,12 @@ HitData get_ray_sphere_intersection(Ray ray, Sphere sphere)
 	};
 
 	return HitData{ false, glm::vec3(0,0,0) };
+};
+
+
+float get_length_between_points(glm::vec3 point1, glm::vec3 point2)
+{
+	return glm::length(point1 - point2);
 };
 
 
@@ -212,7 +220,7 @@ public:
 	{
 		glm::vec3 sphereNormal = get_normal_on_sphere(sphere, intersectionPoint);
 
-		return 1 - get_direction_difference(mLightDirection, sphereNormal);
+		return pow(1 - get_direction_difference(mLightDirection, sphereNormal), 2);
 	};
 
 	glm::vec3 GetLightDirection()
@@ -238,6 +246,8 @@ public:
 	glm::vec3 TraceRay(Ray ray)
 	{
 		std::list<Sphere> spheres = mCurrentScene.GetSpheres();
+		HitData closestHit{ false, glm::vec3(0, 0, 0) };
+		Sphere closestSphere{ glm::vec3(0, 0, 0), 1, glm::vec3(0, 0, 0) };
 
 		// Cycle through list
 		for (Sphere currentSphere : spheres)
@@ -247,12 +257,22 @@ public:
 
 			if (currentHitData.mHit)
 			{
-				float colourModifier = mCurrentScene.GetColourModifier(currentSphere, currentHitData.mFirstIntersection);
-
-				// If collision, return red
-				return currentSphere.GetColour() * colourModifier;
+				if (!closestHit.mHit || get_length_between_points(currentHitData.mFirstIntersection, ray.GetOrigin()) < get_length_between_points(closestHit.mFirstIntersection, ray.GetOrigin()))
+				{
+					closestHit = currentHitData;
+					closestSphere = currentSphere;
+				};
 			};
-		}
+		};
+
+		// If collision detected
+		if (closestHit.mHit)
+		{
+			float colourModifier = mCurrentScene.GetColourModifier(closestSphere, closestHit.mFirstIntersection);
+
+			// If collision, return colour
+			return closestSphere.GetColour() * colourModifier;
+		};
 
 		// If no collision return black
 		return glm::vec3(0, 0, 0);
@@ -283,10 +303,10 @@ public:
 		mWindowCentre = windowSize / 2;
 		mViewingSize = viewingSize;
 
-		mXViewMultiplier = mViewingSize.x / mWindowSize.x;
-		mYViewMultiplier = mViewingSize.y / mWindowSize.y;
-		mXViewOffset = (mViewingSize.x - mWindowSize.x) / 2;
-		mYViewOffset = (mViewingSize.y - mWindowSize.y) / 2;
+		mXViewMultiplier = (float)mViewingSize.x / (float)mWindowSize.x;
+		mYViewMultiplier = (float)mViewingSize.y / (float)mWindowSize.y;
+		mXViewOffset = (float)(mViewingSize.x - mWindowSize.x) / 2;
+		mYViewOffset = (float)(mViewingSize.y - mWindowSize.y) / 2;
 	};
 	~Camera() {};
 
@@ -299,9 +319,9 @@ public:
 		source.y = (float)pixelPosition.y;
 		source.z = -1.f;
 
-		lead.x = (float)(pixelPosition.x * mXViewMultiplier - mXViewOffset);
-		lead.y = (float)(pixelPosition.y * mYViewMultiplier - mYViewOffset);
-		lead.z = 1.f;
+		lead.x = (float)(pixelPosition.x) * mXViewMultiplier - mXViewOffset;
+		lead.y = (float)(pixelPosition.y) * mYViewMultiplier - mYViewOffset;
+		lead.z = 20.f;
 
 		Ray ray(source, glm::normalize(lead - source));
 
@@ -314,6 +334,7 @@ int main( int argc, char *argv[] )
 {
 	// Variable for storing window dimensions
 	glm::ivec2 windowSize( 640, 480 );
+	glm::ivec2 viewingSize( 672, 504 );
 
 	// Call MCG::Init to initialise and create your window
 	// Tell it what size you want the window to be
@@ -341,12 +362,13 @@ int main( int argc, char *argv[] )
 
 	// Do any other DrawPixel calls here
 	// ...
-	Camera camera(windowSize, windowSize);
+	Camera camera(windowSize, viewingSize);
 
 	Scene scene(glm::vec3(1, -1, -1));
 	scene.AddSphere(glm::ivec3(100, 100, 20), 20, glm::vec3(1, 0, 0));
 	scene.AddSphere(glm::ivec3(300, 300, 30), 30, glm::vec3(0, 0, 1));
 	scene.AddSphere(glm::ivec3(220, 220, 200), 160, glm::vec3(0, 1, 0));
+	scene.AddSphere(glm::ivec3(420, 250, 500), 200, glm::vec3(1, 1, 0));
 
 	RayTracer rayTracer;
 	rayTracer.SetScene(scene);
